@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fit Lens — Concept Prototype</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#1b2333;--muted:#5d6779;--line:#e3e7ef;--brand:#2d5bff;--brand-soft:#e8eeff;
+--good:#0f8a5f;--good-soft:#e2f5ee;--mid:#b26b00;--mid-soft:#fff3dc;--low:#c0392b;--low-soft:#fde8e6;--ai:#6b3df5;--ai-soft:#efe9ff}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+.banner{background:#1b2333;color:#cfd6e4;font-size:12px;text-align:center;padding:6px 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:12px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:5}
+.logo{font-weight:800;color:var(--brand);letter-spacing:-.3px}.logo small{color:var(--muted);font-weight:500;margin-left:6px}
+.steps{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}.steps button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 10px;font-size:12px;color:var(--muted);cursor:pointer}
+.steps button.on{background:var(--brand);border-color:var(--brand);color:#fff}
+main{max-width:960px;margin:0 auto;padding:16px}
+.grid{display:grid;grid-template-columns:1fr 340px;gap:16px}@media(max-width:820px){.grid{grid-template-columns:1fr}.steps{display:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+h1{font-size:20px;margin:0 0 4px}h2{font-size:16px;margin:0 0 8px}h3{font-size:14px;margin:14px 0 6px}
+.meta{color:var(--muted);font-size:13px}.tags span{display:inline-block;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:2px 8px;font-size:12px;margin:4px 4px 0 0}
+.btn{border:0;border-radius:8px;padding:10px 16px;font-weight:600;cursor:pointer;font-size:14px}
+.primary{background:var(--brand);color:#fff}.ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}.ai{background:var(--ai);color:#fff}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700}
+.good{background:var(--good-soft);color:var(--good)}.mid{background:var(--mid-soft);color:var(--mid)}.low{background:var(--low-soft);color:var(--low)}.aic{background:var(--ai-soft);color:var(--ai)}
+.list{list-style:none;padding:0;margin:0}.list li{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.list li:first-child{border-top:0}
+.ic{flex:0 0 22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800}
+.ev{font-size:12px;color:var(--muted);margin-top:2px}.ev b{color:var(--ink);font-weight:600}
+.jobs .job{display:flex;justify-content:space-between;gap:10px;padding:12px;border:1px solid var(--line);border-radius:10px;margin-top:8px;cursor:pointer;background:#fff}
+.jobs .job:hover{border-color:var(--brand)}
+.sugg{border:1px dashed var(--ai);background:#fbf9ff;border-radius:10px;padding:12px;margin-top:10px}
+.src{font-size:12px;background:#fff;border-left:3px solid var(--ai);padding:6px 8px;margin:8px 0;color:var(--muted)}
+.note{font-size:13px;background:var(--bg);border-radius:8px;padding:10px;white-space:pre-wrap}
+textarea{width:100%;min-height:84px;border:1px solid var(--line);border-radius:8px;padding:10px;font:inherit}
+.hide{display:none}.small{font-size:12px;color:var(--muted)}
+.meter{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin:8px 0}.meter i{display:block;height:100%}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1b2333;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;opacity:0;transition:.3s}
+.toast.on{opacity:1}
+.hint{background:#fffbe6;border:1px solid #f1e3a6;border-radius:8px;padding:8px 10px;font-size:12px;color:#6b5a12;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="banner">Concept prototype for a HelloPM course assignment · Not affiliated with or endorsed by Naukri / Info Edge · Sample data is fictional</div>
+<header>
+  <div class="logo">JobPortal<small>Fit Lens concept</small></div>
+  <div class="steps" id="steps"></div>
+</header>
+<main id="app"></main>
+<div class="toast" id="toast"></div>
+<script>
+const persona={name:"Ravi (fictional)",title:"Backend Engineer · 5 yrs",skills:["Java","Spring Boot","MySQL","REST APIs","AWS"],
+ resume:{kafka:"“Built order-event pipeline on Kafka processing 2M events/day” — Resume, Project 2",
+         lead:"“Mentored 3 junior engineers; led sprint planning for payments squad” — Resume, Experience"}};
+const jobs={
+ a:{id:"a",title:"Senior Backend Engineer",co:"Fintech Co. (sample)",loc:"Bengaluru · Hybrid",exp:"4–7 yrs",band:"good",bandTxt:"Strong fit",pct:82,
+   must:[["Java / Spring Boot","Profile skills + 5 yrs at current role","y"],["Event streaming (Kafka)","Found in your resume, missing from Key Skills","y"],["Microservices on AWS","Profile skills: AWS; resume: 4 services deployed","y"]],
+   nice:[["Team leadership","Resume mentions mentoring 3 engineers","y"],["Golang","Not found in profile or resume","n"]]},
+ b:{id:"b",title:"Engineering Manager – Payments",co:"Wallet Co. (sample)",loc:"Bengaluru · Onsite",exp:"8–12 yrs",band:"low",bandTxt:"Stretch",pct:34,
+   must:[["8+ years experience","You have 5 years","n"],["Managed team of 8+","Resume shows mentoring 3; no direct reports","n"],["Payments domain","Resume: payments squad","y"]],
+   nice:[["Hiring experience","Not found","n"]]}
+};
+const better=[{t:"Backend Engineer II – Payments",c:"Neo-bank (sample)",p:79},{t:"Senior Software Engineer – Platform",c:"Logistics Co. (sample)",p:76},{t:"Tech Lead – Payments APIs",c:"SaaS Co. (sample)",p:68}];
+let S={view:"job",job:"a",accepted:{},noteOn:true};
+const steps=[["job","1 · Job page"],["lens","2 · Fit Lens"],["fix","3 · Strengthen"],["apply","4 · Apply + note"],["done","5 · Applied"],["stretch","6 · Stretch case"]];
+function go(v,j){if(v==="stretch"){S.job="b";v="lens"}else if(j)S.job=j;else if(v==="job"&&S.view==="done")S.job="a";S.view=v;render();scrollTo(0,0)}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1800)}
+function stepsBar(){document.getElementById('steps').innerHTML=steps.map(([k,l])=>`<button class="${(S.view===k&&!(k==='lens'&&S.job==='b'))||(k==='stretch'&&S.job==='b'&&S.view==='lens')?'on':''}" onclick="go('${k}'${k==='stretch'?'':",'"+(k==='job'||k==='lens'?'a':S.job)+"'"})">${l}</button>`).join('')}
+const bandCls=b=>b==="good"?"good":b==="mid"?"mid":"low";
+function jobHeader(j){return `<div class="card"><h1>${j.title}</h1><div class="meta">${j.co} · ${j.loc} · ${j.exp}</div>
+<div class="tags"><span>Java</span><span>Spring Boot</span><span>Kafka</span><span>AWS</span><span>Microservices</span></div>
+<h3>About the role</h3><p class="meta">Own high-throughput services for payments and settlement. Design event-driven systems, mentor engineers and work with product on reliability goals. (Sample job description.)</p></div>`}
+function lensChip(j){return `<button class="chip ${bandCls(j.band)}" style="border:0;cursor:pointer" onclick="go('lens','${j.id}')">◎ Fit Lens: ${j.bandTxt} · see why</button>`}
+function side(j){return `<div class="card"><h2>${persona.name}</h2><div class="meta">${persona.title}</div>
+<h3>Key skills on profile</h3><div class="tags">${persona.skills.map(s=>`<span>${s}</span>`).join('')}${S.accepted.kafka?'<span style="border-color:var(--ai);color:var(--ai)">Kafka ✓ added</span>':''}${S.accepted.lead?'<span style="border-color:var(--ai);color:var(--ai)">Team leadership ✓ added</span>':''}</div>
+<p class="small" style="margin-top:12px">Fit Lens uses only what is on your profile and resume. It never adds a skill without your confirmation.</p></div>`}
+function V_job(){const j=jobs[S.job];return `<div class="hint">Tap the Fit Lens chip to see how this job matches you before you apply.</div>
+<div class="grid"><div>${jobHeader(j)}<div class="card" style="margin-top:12px"><div class="row" style="justify-content:space-between">${lensChip(j)}<div class="row"><button class="btn ghost" onclick="toast('Saved')">Save</button><button class="btn primary" onclick="go('lens')">Apply</button></div></div>
+<p class="small" style="margin-top:8px">Pressing Apply opens Fit Lens first (one tap to skip).</p></div>
+<div class="card jobs" style="margin-top:12px"><h2>Try another job</h2><div class="job" onclick="go('lens','b')"><div><b>${jobs.b.title}</b><div class="meta">${jobs.b.co} · ${jobs.b.exp}</div></div><span class="chip low">Stretch</span></div></div></div>${side(j)}</div>`}
+function item(r){const y=r[2]==="y";return `<li><span class="ic ${y?'good':'low'}">${y?'✓':'!'}</span><div><b>${r[0]}</b><div class="ev">${r[1]}</div></div></li>`}
+function V_lens(){const j=jobs[S.job];const col=j.band==="good"?"var(--good)":"var(--low)";
+const strong=j.band==="good";
+return `<div class="grid"><div><div class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Fit Lens · ${j.title}</h2><span class="chip aic">AI · explained</span></div>
+<div class="row" style="margin-top:10px"><span class="chip ${bandCls(j.band)}" style="font-size:14px">${j.bandTxt}</span><span class="small">Same relevance model recruiters see, shown as a band (not an exact score)</span></div>
+<div class="meter"><i style="width:${j.pct}%;background:${col}"></i></div>
+<h3>Must-haves from the job description</h3><ul class="list">${j.must.map(item).join('')}</ul>
+<h3>Nice-to-haves</h3><ul class="list">${j.nice.map(item).join('')}</ul>
+<div class="row" style="margin-top:14px">${strong?`<button class="btn ai" onclick="go('fix')">Strengthen my application (2 suggestions)</button><button class="btn ghost" onclick="go('apply')">Apply as is</button>`:
+`<button class="btn primary" onclick="document.getElementById('bb').scrollIntoView({behavior:'smooth'})">See better-fit jobs</button><button class="btn ghost" onclick="go('apply')">Apply anyway</button>`}</div>
+<p class="small" style="margin-top:10px">Why am I seeing this? Fit Lens compares the job's requirements with your profile and resume. You can always apply. <a href="#" onclick="toast('Thanks — feedback improves Fit Lens');return false">Is this wrong?</a></p></div>
+${strong?'':`<div class="card" id="bb" style="margin-top:12px"><h2>Better bets for you right now</h2><p class="small">Similar roles where your profile is a strong fit today.</p><div class="jobs">${better.map(b=>`<div class="job" onclick="go('lens','a')"><div><b>${b.t}</b><div class="meta">${b.c}</div></div><span class="chip good">Strong fit</span></div>`).join('')}</div>
+<h3>Want this kind of role later?</h3><p class="small">Gap to close: people management (8+ reports) and ~3 more years. <a href="#" onclick="toast('Career goal saved — alerts will include EM roles');return false">Save as a career goal</a></p></div>`}
+</div>${side(j)}</div>`}
+function sugg(k,title,why){const on=S.accepted[k];return `<div class="sugg"><div class="row" style="justify-content:space-between"><b>${title}</b>${on?'<span class="chip good">Added</span>':''}</div><div class="src">Evidence: ${persona.resume[k]}</div><div class="small">${why}</div>
+<div class="row" style="margin-top:8px">${on?`<button class="btn ghost" onclick="S.accepted.${k}=false;render()">Undo</button>`:`<button class="btn ai" onclick="S.accepted.${k}=true;render();toast('Added to your profile')">Add to profile</button><button class="btn ghost" onclick="toast('Skipped')">Skip</button>`}</div></div>`}
+function V_fix(){return `<div class="grid"><div class="card"><h2>Strengthen my application</h2><p class="small">These come only from your own resume. Nothing is invented, and nothing changes until you confirm it.</p>
+${sugg('kafka','Add “Kafka” to Key Skills','This job lists event streaming as a must-have. Recruiters search Key Skills first, and yours does not mention Kafka.')}
+${sugg('lead','Add “Team leadership” to Key Skills','Leadership is a nice-to-have here, and your resume shows you mentoring engineers.')}
+<div class="sugg" style="border-color:var(--line);background:#fff"><b>Not suggested: Golang</b><div class="small">No evidence in your profile or resume, so Fit Lens will not suggest adding it. Consider the related course in Learning instead.</div></div>
+<div class="row" style="margin-top:14px"><button class="btn primary" onclick="go('apply')">Continue to apply</button><button class="btn ghost" onclick="go('lens')">Back</button></div></div>${side(jobs.a)}</div>`}
+function noteText(){const j=jobs[S.job];return S.job==="a"?`5 yrs Java/Spring Boot backend. Built a Kafka order-event pipeline (2M events/day) and run 4 microservices on AWS. Mentored 3 engineers on the payments squad.`:
+`5 yrs backend in payments; mentored 3 engineers and led sprint planning. Applying for EM to grow into people leadership.`}
+function V_apply(){const j=jobs[S.job];return `<div class="grid"><div class="card"><h2>Apply · ${j.title}</h2><div class="meta">${j.co}</div>
+<h3>Resume</h3><div class="note">Ravi_Backend_2026.pdf (default)</div>
+<h3 class="row" style="justify-content:space-between">Fit note to recruiter <label class="small"><input type="checkbox" ${S.noteOn?'checked':''} onchange="S.noteOn=this.checked;render()"> attach</label></h3>
+${S.noteOn?`<p class="small">AI-drafted from your profile, 2 lines, editable. Shown at the top of your application in the recruiter's view.</p><textarea id="nt">${noteText()}</textarea>`:'<p class="small">No note will be attached.</p>'}
+<div class="row" style="margin-top:14px"><button class="btn primary" onclick="go('done')">Submit application</button><button class="btn ghost" onclick="go('lens')">Back</button></div></div>
+<div class="card"><h2>What the recruiter sees</h2><div class="note"><b>Ravi</b> · Backend Engineer · 5 yrs
+Relevance: ${j.band==='good'?'High match':'Low match'}${S.noteOn?'\n\n“'+noteText()+'”':''}</div><p class="small" style="margin-top:8px">Recruiters already see a relevance bucket. The fit note adds the evidence behind it.</p></div></div>`}
+function V_done(){const j=jobs[S.job];return `<div class="card" style="max-width:640px;margin:0 auto;text-align:center"><div style="font-size:40px">✓</div><h2>Application sent</h2>
+<p class="meta">${j.title} · ${j.co}</p><p class="small">Fit at apply time: <span class="chip ${bandCls(j.band)}">${j.bandTxt}</span>${S.noteOn?' · fit note attached':''}</p>
+<div class="card" style="text-align:left;margin-top:12px"><b>What to expect</b><p class="small">Recruiters for similar roles usually review within about 5 days. We'll tell you when your application is viewed. (Illustrative copy.)</p></div>
+<div class="row" style="justify-content:center;margin-top:14px"><button class="btn primary" onclick="go('job','a')">Back to jobs</button><button class="btn ghost" onclick="go('stretch')">See a Stretch example</button></div></div>`}
+function render(){stepsBar();const v={job:V_job,lens:V_lens,fix:V_fix,apply:V_apply,done:V_done}[S.view];document.getElementById('app').innerHTML=v()}
+render();
+</script>
+</body>
+</html>
